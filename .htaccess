@@ -1,0 +1,35 @@
+# --- SECURITY HARDENING ---
+
+# 1. Disable Directory Browsing
+Options -Indexes
+
+# 2. Hide Server Signature
+ServerSignature Off
+
+# 3. Protect Configuration and Hidden Files
+<FilesMatch "^(config\.php|\.htaccess|\.env|\.git)">
+    Require all denied
+</FilesMatch>
+
+# 4. HTTP Security Headers
+<IfModule mod_headers.c>
+    # Prevent Clickjacking
+    Header set X-Frame-Options "SAMEORIGIN"
+    # Prevent MIME-sniffing
+    Header set X-Content-Type-Options "nosniff"
+    # Enable XSS Protection in older browsers
+    Header set X-XSS-Protection "1; mode=block"
+    # Referrer Policy
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# --- ROUTING & URL REWRITES ---
+
+RewriteEngine On
+
+# Force HTTPS (Uncomment below lines if SSL is installed)
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Clean URL for Verification
+RewriteRule ^verify/([a-zA-Z0-9_-]+)$ verify.php/$1 [L]

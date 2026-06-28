@@ -1,0 +1,62 @@
+-- Create Database
+CREATE DATABASE IF NOT EXISTS certificate_system;
+USE certificate_system;
+
+-- Create Admins Table
+CREATE TABLE IF NOT EXISTS admin_users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL
+);
+
+-- Insert Default Admin (username: admin, password: password123)
+INSERT INTO admin_users (username, password_hash) 
+VALUES ('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi')
+ON DUPLICATE KEY UPDATE id=id;
+
+-- Create Events Table
+CREATE TABLE IF NOT EXISTS events (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    linkedin_caption TEXT NULL,
+    cert_prefix VARCHAR(50) DEFAULT 'DCW',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create Event Roles Table
+CREATE TABLE IF NOT EXISTS event_roles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    event_id INT NOT NULL,
+    role_name VARCHAR(255) NOT NULL,
+    template_file VARCHAR(255) NOT NULL,
+    visual_settings TEXT NULL,
+    rotation FLOAT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
+);
+
+-- Create Participants Table
+CREATE TABLE IF NOT EXISTS participants (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    full_name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create Event Participants Junction Table
+CREATE TABLE IF NOT EXISTS event_participants (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    event_id INT NOT NULL,
+    role_id INT NULL,
+    participant_id INT NOT NULL,
+    certificate_id VARCHAR(50) UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
+    FOREIGN KEY (role_id) REFERENCES event_roles(id) ON DELETE SET NULL,
+    FOREIGN KEY (participant_id) REFERENCES participants(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_participant_event (event_id, participant_id)
+);
+
+-- Add Indexes for Performance
+CREATE INDEX idx_event_id ON event_participants(event_id);
+CREATE INDEX idx_participant_id ON event_participants(participant_id);

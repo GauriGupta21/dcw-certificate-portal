@@ -1,0 +1,24 @@
+# Configuration
+config.php
+
+# Composer Dependencies
+vendor/
+
+# Environment / IDE
+.env
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# User Uploads
+uploads/certificates/*
+!uploads/certificates/.gitkeep
+uploads/templates/*
+!uploads/templates/.gitkeep
+uploads/fonts/*
+!uploads/fonts/.gitkeep
+
+# Test files and Scratchpads
+tests/
+scratch/

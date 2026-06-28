@@ -1,0 +1,9 @@
+{
+    "name": "dcw/certificate-system",
+    "description": "Dynamic certificate generation system",
+    "require": {
+        "php": ">=8.0",
+        "setasign/fpdi": "^2.6",
+        "tecnickcom/tcpdf": "^6.6"
+    }
+}
