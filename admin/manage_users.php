@@ -109,17 +109,17 @@ $allAdmins = $stmtAdmins->fetchAll();
                 <input type="hidden" name="action" value="change_password">
                 <div class="form-group">
                     <label>Current Password</label>
-                    <input type="password" name="current_password" required>
+                    <div class="password-wrapper"><input type="password" name="current_password" required id="current-password"><button type="button" class="password-toggle" onclick="togglePassword('current-password')"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg></button></div>
                 </div>
                 
                 <div class="form-group">
                     <label>New Password</label>
-                    <input type="password" name="new_password" required>
+                    <div class="password-wrapper"><input type="password" name="new_password" required id="new-password"><button type="button" class="password-toggle" onclick="togglePassword('new-password')"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg></button></div>
                 </div>
                 
                 <div class="form-group">
                     <label>Confirm New Password</label>
-                    <input type="password" name="confirm_password" required>
+                    <div class="password-wrapper"><input type="password" name="confirm_password" required id="confirm-password"><button type="button" class="password-toggle" onclick="togglePassword('confirm-password')"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg></button></div>
                 </div>
                 
                 <button type="submit" class="btn" style="width: 100%;">Update Password</button>
@@ -141,7 +141,7 @@ $allAdmins = $stmtAdmins->fetchAll();
                 
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" name="create_password" required>
+                    <div class="password-wrapper"><input type="password" name="create_password" required id="create-password"><button type="button" class="password-toggle" onclick="togglePassword('create-password')"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg></button></div>
                 </div>
                 
                 <button type="submit" class="btn" style="width: 100%;">Create Admin User</button>
@@ -189,5 +189,7 @@ $allAdmins = $stmtAdmins->fetchAll();
     window.flashMessageType = 'success';
 </script>
 <?php endif; ?>
+<script>function togglePassword(id){const input=document.getElementById(id);input.type=input.type==='password'?'text':'password';}</script>
 </body>
 </html>
+
