@@ -23,7 +23,9 @@ if (!$certData) {
 }
 
 $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
-$verifyUrl = $protocol . $_SERVER['HTTP_HOST'] . str_replace('\\', '/', dirname($_SERVER['PHP_SELF'])) . '/verify/' . $certId;
+$baseDir = str_replace('\\', '/', dirname($_SERVER['PHP_SELF']));
+if ($baseDir === '/') $baseDir = '';
+$verifyUrl = $protocol . $_SERVER['HTTP_HOST'] . $baseDir . '/verify/' . $certId;
 
 $eventName = urlencode($certData['event_name']);
 $issueYear = date('Y', strtotime($certData['created_at']));
