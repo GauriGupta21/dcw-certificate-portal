@@ -13,6 +13,22 @@ jobs:
     steps:
     - name: Get latest code
       uses: actions/checkout@v4
+      
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        
+    - name: Cache Composer dependencies
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-
+          
+    - name: Install Composer Dependencies
+      run: composer install --no-dev --optimize-autoloader --prefer-dist --no-progress
     
     - name: Sync files via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
