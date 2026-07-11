@@ -31,6 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     $eventName = trim($_POST['name'] ?? '');
     $linkedinCaption = trim($_POST['linkedin_caption'] ?? '');
+    $customVerificationText = trim($_POST['custom_verification_text'] ?? '');
     $certificateIssueDate = trim($_POST['certificate_issue_date'] ?? '');
     if ($certificateIssueDate === '') {
         $certificateIssueDate = null;
@@ -50,6 +51,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (!$eventName) {
         $error = "Event name is required.";
     } else {
+        $stmtUpdate = $pdo->prepare("UPDATE events SET name = ?, linkedin_caption = ?, custom_verification_text = ? WHERE id = ?");
+        $stmtUpdate->execute([$eventName, $linkedinCaption, $customVerificationText, $eventId]);
         $stmtUpdate = $pdo->prepare("UPDATE events SET name = ?, linkedin_caption = ?, certificate_issue_date = ?, description = ?, partners = ? WHERE id = ?");
         $stmtUpdate->execute([$eventName, $linkedinCaption, $certificateIssueDate, $description, $partners, $eventId]);
         
@@ -59,6 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Refresh event data
         $event['name'] = $eventName;
         $event['linkedin_caption'] = $linkedinCaption;
+        $event['custom_verification_text'] = $customVerificationText;
         $event['certificate_issue_date'] = $certificateIssueDate;
         $event['description'] = $description;
         $event['partners'] = $partners;
@@ -103,6 +107,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="form-group">
             <label>Certificate Prefix <span style="font-size: 11px; color: #999; font-weight: normal;">(Cannot be changed after creation)</span></label>
             <input type="text" name="cert_prefix" value="<?= htmlspecialchars($event['cert_prefix'] ?? 'DCW') ?>" readonly style="background-color: #e9ecef; color: #6c757d; cursor: not-allowed; text-transform: uppercase;">
+        </div>
+
+        <div class="form-group">
+            <label>Custom Certificate Verification Text (Optional)</label>
+            <textarea name="custom_verification_text" rows="3" placeholder="e.g. This digital credential was securely issued by our partner organization, [Partner Name], and verified by Deoband Community Wikimedia." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: inherit; resize: vertical;"><?= htmlspecialchars($event['custom_verification_text'] ?? '') ?></textarea>
+            <div style="font-size: 11px; color: #777; margin-top: 5px;">
+                If left blank, defaults to: <em>This digital credential has been securely issued and verified by Deoband Community Wikimedia.</em>
+            </div>
         </div>
         
         <div class="form-group">

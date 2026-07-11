@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS events (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     linkedin_caption TEXT NULL,
+    custom_verification_text TEXT NULL,
     cert_prefix VARCHAR(50) DEFAULT 'DCW',
     certificate_issue_date DATE NULL,
     description TEXT NULL,
