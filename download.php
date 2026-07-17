@@ -14,6 +14,7 @@ $certId = trim($_GET['id']);
 $preview = isset($_GET['preview']) && $_GET['preview'] == 1;
 
 require_once 'config.php';
+require_once 'helpers.php';
 require_once 'vendor/autoload.php';
 
 use setasign\Fpdi\Tcpdf\Fpdi;
@@ -192,8 +193,13 @@ if (is_array($visualSettings)) {
     }
 }
 
+
+
 // Output
-$filename = "certificate-" . preg_replace('/[^a-z0-9]+/', '-', strtolower($fullName)) . ".pdf";
+// sanitizeForFilename() is defined in config.php so download.php and send-email.php stay consistent
+$safeFullName = sanitizeForFilename($fullName);
+$safeEventName = sanitizeForFilename($certData['event_name']);
+$filename = "{$safeFullName} - {$safeEventName} - Certificate.pdf";
 
 if ($preview) {
     // Show inline in browser for previews

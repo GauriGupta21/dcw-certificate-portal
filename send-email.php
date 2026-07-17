@@ -1,5 +1,5 @@
-<?php
 require_once 'config.php';
+require_once 'helpers.php';
 // Include PHPMailer and FPDI
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -218,7 +218,11 @@ try {
     $mail->Subject = "Verified Credential: " . $certData['event_name'];
 
     // Attach PDF
-    $filename = "certificate-" . preg_replace('/[^a-z0-9]+/', '-', strtolower($fullName)) . ".pdf";
+    // sanitizeForFilename() is defined in config.php and shared with download.php
+    // so the emailed attachment name matches the manually-downloaded filename format.
+    $safeFullName = sanitizeForFilename($fullName);
+    $safeEventName = sanitizeForFilename($certData['event_name']);
+    $filename = "{$safeFullName} - {$safeEventName} - Certificate.pdf";
     $mail->addStringAttachment($pdfString, $filename);
 
     // Professional HTML Email Template Layout
