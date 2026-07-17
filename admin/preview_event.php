@@ -141,20 +141,6 @@ if (is_dir($fontDir)) {
         .element-box { position: absolute; white-space: nowrap; cursor: move; border: 1px dashed transparent; padding: 2px 5px; user-select: none; line-height: 1; }
         .element-box.active { border-color: #007bff; background: rgba(0, 123, 255, 0.1); z-index: 10; }
         .element-box.hidden { display: none; }
-        /* [INSERTION 1: GRID & GUIDE STYLES] */
-        #grid-overlay { position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:5; display:none;
-            background-image: linear-gradient(rgba(200,200,200,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(200,200,200,0.3) 1px, transparent 1px);
-            background-size: 20px 20px; }
-        .guide-line { position: absolute; pointer-events: none; z-index: 9; }
-        .guide-center-v { left: 50%; top: 0; bottom: 0; border-left: 1.5px dashed #9933ff; opacity: 0.5; }
-        .guide-center-h { top: 50%; left: 0; right: 0; border-top: 1.5px dashed #9933ff; opacity: 0.5; }
-        .guide-element-v { top: 0; bottom: 0; border-left: 1.5px dashed #00beff; opacity: 0.8; display: none; }
-        .guide-element-h { left: 0; right: 0; border-top: 1.5px dashed #00beff; opacity: 0.8; display: none; }
-/* Mobile responsiveness for editor */
-        @media (max-width: 900px) {
-            .container { flex-direction: column; }
-            .controls { width: 100%; box-sizing: border-box; }
-        }
         /* ===== START OF INSERTION 1: GRID & GUIDE CSS ===== */
         #grid-overlay { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
@@ -165,11 +151,16 @@ if (is_dir($fontDir)) {
             background-size: 20px 20px; 
         }
         .guide-line { position: absolute; pointer-events: none; z-index: 9; }
-        .guide-center-v { left: 50%; top: 0; bottom: 0; border-left: 1.5px dashed #9933ff; opacity: 0.7; }
-        .guide-center-h { top: 50%; left: 0; right: 0; border-top: 1.5px dashed #9933ff; opacity: 0.7; }
+        .guide-center-v { left: 50%; top: 0; bottom: 0; border-left: 1.5px dashed #9933ff; opacity: 0.7; display: none; }
+        .guide-center-h { top: 50%; left: 0; right: 0; border-top: 1.5px dashed #9933ff; opacity: 0.7; display: none; }
         .guide-element-v { top: 0; bottom: 0; border-left: 1.5px dashed #00beff; opacity: 0.8; display: none; }
         .guide-element-h { left: 0; right: 0; border-top: 1.5px dashed #00beff; opacity: 0.8; display: none; }
         /* ===== END OF INSERTION 1 ===== */
+        /* Mobile responsiveness for editor */
+        @media (max-width: 900px) {
+            .container { flex-direction: column; }
+            .controls { width: 100%; box-sizing: border-box; }
+        }
     </style>
     
     <!-- Dynamic Font Loading for Elements -->
@@ -210,13 +201,13 @@ if (is_dir($fontDir)) {
             </div>
             <div class="editor-container">
                 <div id="pdf-container">
-                    /* ===== START OF INSERTION 2: GRID & GUIDE HTML ELEMENTS ===== */
+                    <!-- ===== START OF INSERTION 2: GRID & GUIDE HTML ELEMENTS ===== -->
                     <div id="grid-overlay"></div>
                     <div class="guide-line guide-center-v"></div>
                     <div class="guide-line guide-center-h"></div>
                     <div class="guide-line guide-element-v" id="guide_v"></div>
                     <div class="guide-line guide-element-h" id="guide_h"></div>
-                    /* ===== END OF INSERTION 2 ===== */
+                    <!-- ===== END OF INSERTION 2 ===== -->
                     <canvas id="pdf-canvas"></canvas>
         
                     <div id="el_name" class="element-box active" data-id="name">Participant Name</div>
@@ -352,7 +343,11 @@ if (is_dir($fontDir)) {
 /* ===== START OF INSERTION 4A: GRID AND GUIDE FUNCTIONS ===== */
         // Listen for the grid toggle checkbox
         document.getElementById('toggle_grid').addEventListener('change', function() {
-            document.getElementById('grid-overlay').style.display = this.checked ? 'block' : 'none';
+            const displayStyle = this.checked ? 'block' : 'none';
+            document.getElementById('grid-overlay').style.display = displayStyle;
+            document.querySelectorAll('.guide-center-v, .guide-center-h').forEach(el => {
+                el.style.display = displayStyle;
+            });
         });
 
         // Function to move the blue guidelines to the currently active element
