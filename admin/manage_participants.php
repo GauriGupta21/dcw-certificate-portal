@@ -104,6 +104,8 @@ if (isset($_GET['export'])) {
     exit;
 }
 
+$newCertIds = [];
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $csrf = $_POST['csrf_token'] ?? '';
     verify_csrf_token($csrf);
@@ -133,6 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($stmtLinkEvent->rowCount() > 0) {
                 $message = "Participant added successfully.";
                 $messageType = 'success';
+                $newCertIds[] = $certId;
             } else {
                 $message = "Participant is already registered for this event.";
                 $messageType = 'error';
@@ -214,6 +217,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             
                             if ($stmtLinkEvent->rowCount() > 0) {
                                 $added++;
+                                $newCertIds[] = $certId;
                             } else {
                                 $skipped++; // Duplicate linkage
                             }
@@ -533,6 +537,174 @@ function confirmDelete(id) {
     window.flashMessage = <?= json_encode($message) ?>;
     window.flashMessageType = <?= json_encode($messageType) ?>;
 </script>
+<?php endif; ?>
+
+<?php if (!empty($newCertIds)): ?>
+    <!-- Progress Modal/Overlay -->
+    <div id="email-progress-modal" class="progress-modal-overlay">
+        <div class="progress-modal-content">
+            <h3>Sending Notification Emails</h3>
+            <p id="email-progress-status">Preparing to send notification emails...</p>
+            <div class="progress-bar-container">
+                <div id="email-progress-bar" class="progress-bar-fill" style="width: 0%;"></div>
+            </div>
+            <div id="email-progress-log" class="progress-log-container"></div>
+            <div class="progress-modal-footer" id="progress-modal-footer" style="display: none;">
+                <button onclick="closeProgressModal()" class="btn-close-modal">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <style>
+        .progress-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .progress-modal-content {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 24px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            text-align: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        .progress-modal-content h3 {
+            margin-top: 0;
+            color: #0f172a;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .progress-modal-content p {
+            color: #475569;
+            font-size: 14px;
+            margin-bottom: 16px;
+            margin-top: 8px;
+        }
+        .progress-bar-container {
+            background: #e2e8f0;
+            border-radius: 6px;
+            height: 12px;
+            width: 100%;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+        .progress-bar-fill {
+            background: #106b9a;
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .progress-log-container {
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 10px;
+            text-align: left;
+            font-size: 12px;
+            font-family: monospace;
+            background: #f8fafc;
+            color: #1e293b;
+        }
+        .progress-log-item {
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+        .progress-log-item.success { color: #15803d; }
+        .progress-log-item.failed { color: #b91c1c; }
+        .progress-modal-footer {
+            margin-top: 16px;
+        }
+        .btn-close-modal {
+            background-color: #106b9a;
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-close-modal:hover {
+            background-color: #0c567a;
+        }
+    </style>
+
+    <script>
+        const newCertIds = <?= json_encode($newCertIds) ?>;
+        let currentIndex = 0;
+        
+        function updateProgress(percentage, statusText) {
+            document.getElementById('email-progress-bar').style.width = percentage + '%';
+            document.getElementById('email-progress-status').innerText = statusText;
+        }
+        
+        function logMessage(text, isSuccess) {
+            const logContainer = document.getElementById('email-progress-log');
+            const logItem = document.createElement('div');
+            logItem.className = 'progress-log-item ' + (isSuccess ? 'success' : 'failed');
+            logItem.innerText = text;
+            logContainer.appendChild(logItem);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        function closeProgressModal() {
+            document.getElementById('email-progress-modal').style.display = 'none';
+        }
+        
+        async function sendNextEmail() {
+            if (currentIndex >= newCertIds.length) {
+                updateProgress(100, 'All emails processed. ' + newCertIds.length + ' sent/attempted.');
+                document.getElementById('progress-modal-footer').style.display = 'block';
+                return;
+            }
+            
+            const certId = newCertIds[currentIndex];
+            const currentCount = currentIndex + 1;
+            const totalCount = newCertIds.length;
+            
+            updateProgress(
+                Math.round((currentIndex / totalCount) * 100),
+                'Sending notification email ' + currentCount + ' of ' + totalCount + '...'
+            );
+            
+            try {
+                const formData = new FormData();
+                formData.append('id', certId);
+                
+                const response = await fetch('send-notification.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    logMessage('[✓] Notification sent successfully for: ' + certId, true);
+                } else {
+                    logMessage('[✗] Failed for: ' + certId + ' - ' + data.message, false);
+                }
+            } catch (err) {
+                logMessage('[✗] Connection error for: ' + certId + ' - ' + err.message, false);
+            }
+            
+            currentIndex++;
+            // Small delay to prevent hammering the server / SMTP
+            setTimeout(sendNextEmail, 200);
+        }
+        
+        // Start processing after page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            sendNextEmail();
+        });
+    </script>
 <?php endif; ?>
 </body>
 </html>
